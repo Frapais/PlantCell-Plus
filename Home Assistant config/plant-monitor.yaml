@@ -1,0 +1,152 @@
+esphome:
+  name: plant-monitor
+  friendly_name: Plant Monitor
+  includes:
+    # Custom component for reading the battery percentage through the Battery monitor IC onboard the NanoCell
+    - /config/esphome/custom_components/MAX17048_component.h
+  libraries:
+    # Wire library is needed for the i2c protocol
+    - "Wire"
+  on_boot: 
+    then:
+      # On boot, give power to the 3 distinct sensors (light, temp, soil moisture)
+      - output.turn_on: soil_en
+      - output.turn_on: temp_en
+      - output.turn_on: light_en
+      # If you want to implement deep_sleep, uncomment the following line
+      # - script.execute: deep_sleep_evaluation
+
+# ------ This is generated automatically ------
+esp32:
+  board: esp32-c3-devkitm-1
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "your_encryption_key"
+
+ota:
+  password: "your_ota_password"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Plant-Monitor Fallback Hotspot"
+    password: "2lU3cSLJRwyU"
+
+captive_portal:
+# ------ End of automatic generated code ------
+
+
+# Initiallize the I2C Protocol (NanoCell uses pins 2 and 3)
+i2c:
+  sda: 2
+  scl: 3
+  scan: True
+
+# Decalaration of the GPIOs that give power to the 3 distinct sensors of the PlantCell.
+output:
+  - platform: gpio
+    pin: 5
+    id: soil_en
+
+  - platform: gpio
+    pin: 6
+    id: temp_en
+
+  - platform: gpio
+    pin: 7
+    id: light_en
+
+# This is a "toggle" type input_boolean helper, created from the Home Assistant "settings" menu.
+# When this binary sensor is "on" the deep sleep will be disabled.
+# Be sure to enable deep sleep functionality AFTER you have configured the device on Home Assistant, otherwise this binary sensor state will not be read.
+binary_sensor:
+  - platform: homeassistant
+    id: disable_deep_sleep
+    entity_id: input_boolean.disable_deep_sleep
+
+sensor:
+  # The implementation of the soil moisture sensor
+  - platform: adc
+    pin: 4
+    name: "Soil moisture"
+    update_interval: 1s
+    attenuation: 11dB
+    filters:
+    - calibrate_linear:
+        # Map 0.0 (from sensor) to 0.0 (true value)
+        - 0.91 -> 100
+        - 1.92 -> 0
+    unit_of_measurement: '%'
+    accuracy_decimals: 0
+
+  # The implementation of the Ambient light sensor
+  - platform: veml7700
+    address: 0x10
+    update_interval: 1s
+    # short variant of sensor definition:
+    ambient_light: "Ambient light"
+    # longer variant of sensor definition:
+    actual_gain:
+      name: "Actual gain"
+  
+  # The implementation of the Air temp & humidity sensor
+  - platform: hdc1080
+    temperature:
+      name: "Air Temperature"
+    humidity:
+      name: "Air Humidity"
+    address: 0x40
+    update_interval: 1s
+
+  # The implementation of the Battery monitor IC
+  - platform: custom
+    lambda: |-
+      auto my_sensor = new  MAX17048Sensor();
+      App.register_component(my_sensor);
+      return {my_sensor->voltage_sensor, my_sensor->percentage_sensor, my_sensor->rate_sensor};
+  
+    sensors:
+    - name: "Battery Voltage"
+      unit_of_measurement: V
+      accuracy_decimals: 2
+    - name: "Battery Percentage"
+      unit_of_measurement: '%'
+      accuracy_decimals: 2
+    - name: "Discharge Rate"
+      unit_of_measurement: '%/h'
+      accuracy_decimals: 2
+
+# This script sets the waiting time before going into sleep mode
+# Once the delay time has passed, checks the status of the binary sensor mentioned above
+# If the binary sensor status is "on", it disables deep sleep. Otherwise, it enters deep sleep for the set duration
+script:
+  - id: deep_sleep_evaluation
+    mode: queued
+    then:
+      - delay: 15s
+      - if:
+          condition:
+            binary_sensor.is_on: disable_deep_sleep
+          then:
+            - logger.log: 'Deep Sleep Disabled'
+            - deep_sleep.prevent: deep_sleep_enabled
+          else:
+            - deep_sleep.enter: deep_sleep_enabled
+      - script.execute: deep_sleep_evaluation
+
+# Here, the deep sleep duration is declared
+deep_sleep:
+  id: deep_sleep_enabled
+  sleep_duration: 60min
+
+
