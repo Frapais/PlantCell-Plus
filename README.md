@@ -23,7 +23,7 @@ The sensor outputs an varying voltage corresponding to the change in capacitance
 
 ### Tests
 To test this sensor, a NanoCell-C3 board was soldered to the corresponding pins, and the raw values of the sensor were continously uploaded to the local Home Assistant server.
-The analog input was read with 11dB attennuation, and the maximum values were **1.8V** with a completely dry sensor, and **0.9V** when the sensor was submerged in a glass of water.
+The analog input was read with 11dB attennuation, and the maximum values were **1.8V** with a completely dry sensor, and **0.89V** when the sensor was submerged in a glass of water.
 These valuse can be mapped into a percentage of **0%** and **100%** soil moisture accordingly. However, it is recommended to repeat this calibration process when the sensor is placed inside the soil in its final position.
 
 ### Initial Home Assistant setup
@@ -36,7 +36,7 @@ These valuse can be mapped into a percentage of **0%** and **100%** soil moistur
 
 
 ## Availability
-You can get the assembled boards in my [Tindie](https://www.tindie.com/products/frapais/nanocell-c3-v20-beta/), [Etsy](https://www.etsy.com/listing/1679895323/nanocell-c3-v2-beta?ref=listings_manager_grid), and [Elecrow](https://www.elecrow.com/nanocell-c3.html) stores.
+You can get the assembled boards from my [Official Website](https://frapaislab.com/smart-soil-moisture-sensor), and from [Tindie](https://www.tindie.com/products/frapais/plantcell-plus/).
 
 <a href="https://www.tindie.com/stores/frapais/?ref=offsite_badges&utm_source=sellers_Frapais&utm_medium=badges&utm_campaign=badge_large"><img src="https://d2ss6ovg47m0r5.cloudfront.net/badges/tindie-larges.png" alt="I sell on Tindie" width="200" height="104" allign="left"></a>
 
