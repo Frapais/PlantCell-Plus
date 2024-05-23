@@ -3,11 +3,17 @@
 This is the repository of my **PlantCell Plus** project, a complete plant monitoring system, consisting of a Capacitive Soil Moisture Sensor, an Ambient Light sensor, and an Air Temperature & Humidity sensor.
 By directly soldering a NanoCell board, you can make a battery powered plant monitoring sensor for Home Assistant.
 
-<img src="https://github.com/Frapais/PlantCell-Plus/blob/main/Photos/2024-05-15T21_10_45.301Z-2024-05-15%20033.jpg" alt="Photo1" width="600"/>
-<img src="https://github.com/Frapais/PlantCell-Plus/blob/main/Drawings/Plant%20monitor%20pinout.png" alt="Pinout" width="200"/>
+|<img src="https://github.com/Frapais/PlantCell-Plus/blob/main/Photos/2024-05-15T21_10_45.301Z-2024-05-15%20033.jpg" alt="Photo1" width="600"/>|<img src="https://github.com/Frapais/PlantCell-Plus/blob/main/Drawings/Plant%20monitor%20pinout.png" alt="Pinout" width="200"/>|
+|-|-|
+
+
+
 
 ## Description
 ### Hardware
+The soil moisture is measured by measuring the varying capacitance of the sensor's surface. If everything else stays constant, the capacitance will change with the change of the water content in the soil.
+The sensor outputs an varying voltage corresponding to the change in capacitance, which we can measure via an analog input of any microcontroller.
+
 #### Main Features
 * Corrosion-resistant soil moisture sensor
 * I2C Ambient light sensor
@@ -16,7 +22,9 @@ By directly soldering a NanoCell board, you can make a battery powered plant mon
 * LiPo battery connector
 
 ### Tests
-
+To test this sensor, a NanoCell-C3 board was soldered to the corresponding pins, and the raw values of the sensor were continously uploaded to the local Home Assistant server.
+The analog input was read with 11dB attennuation, and the maximum values were **1.8V** with a completely dry sensor, and **0.9V** when the sensor was submerged in a glass of water.
+These valuse can be mapped into a percentage of **0%** and **100%** soil moisture accordingly. However, it is recommended to repeat this calibration process when the sensor is placed inside the soil in its final position.
 
 ### Initial Home Assistant setup
 #### Requirements:
